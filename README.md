@@ -1,7 +1,8 @@
 # hypr
 
-[![NPM version][3]][4]
-[![Davis Dependency status][9]][10]
+[![NPM version][1]][2]
+[![Davis Dependency status][3]][4]
+[![experimental](http://hughsk.github.io/stability-badges/dist/experimental.svg)](http://github.com/hughsk/stability-badges)
 
 Build UI components with reactive state. Render with react, virtual-dom or mithril.
 
@@ -9,7 +10,7 @@ Build UI components with reactive state. Render with react, virtual-dom or mithr
 
 ```js
 var
-	hypr = require('../hypr'),
+	hypr = require('hypr'),
 	react = require('react'),
 	virtualDom = require('virtual-dom'),
 	mithril = require('mithril'),
@@ -41,3 +42,8 @@ window.onload = function(){
 	(counterButon, { text: 'like' }, document.body)
 }
 ```
+
+[1]: https://badge.fury.io/js/hypr.svg
+[2]: https://badge.fury.io/js/hypr
+[3]: https://david-dm.org/idmitriev/hypr.svg
+[4]: https://david-dm.org/idmitriev/hypr

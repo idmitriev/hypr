@@ -1,0 +1,23 @@
+{
+  "name": "hypr",
+  "version": "0.0.2",
+  "description": "Build UI components with reactive state. Render with react, virtual-dom or mithril.",
+  "main": "hypr.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "mithril",
+    "virtual-dom",
+    "components",
+    "ui"
+  ],
+  "author": "Ivan Dmitriev <iam@ivandmitriev.com>",
+  "license": "MIT",
+  "dependencies": {
+    "baconjs": "^0.7.41",
+    "deep-equal": "^0.2.1",
+    "raf": "^2.0.4"
+  }
+}

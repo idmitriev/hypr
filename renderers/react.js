@@ -1,7 +1,7 @@
 var
 	stream = require('baconjs'),
-	utils = require('../utils'),
-	hypr = require('../hypr');
+	utils = require('../utils.js'),
+	hypr = require('../hypr.js');
 
 module.exports = function(react) {
 	function createReactElement(spec, parentDomEventStream){

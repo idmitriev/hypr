@@ -1,6 +1,6 @@
 var
-	hypr = require('../hypr'),
-	utils = require('../utils');
+	hypr = require('../hypr.js'),
+	utils = require('../utils.js');
 
 module.exports = function(mithril) {
 	function renderElement(element, component, onMount) {

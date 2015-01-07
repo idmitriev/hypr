@@ -3,6 +3,7 @@ module.exports = {
 	randomString: randomString,
 	mapObject: mapObject,
 	isArray: isArray,
+	mapValues: mapValues,
 	haveSameKeys: haveSameKeys,
 	pick: pick,
 	isFunction: isFunction,

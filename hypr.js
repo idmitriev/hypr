@@ -2,7 +2,7 @@ var
 	stream = require('baconjs'),
 	deepEqual = require('deep-equal'),
 	raf = require('raf'),
-	utils = require('./utils');
+	utils = require('./utils.js');
 
 function hypr(rendererLib){
 	var

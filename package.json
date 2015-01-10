@@ -1,6 +1,6 @@
 {
   "name": "hypr",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Build UI components with reactive state. Render with react, virtual-dom or mithril.",
   "main": "hypr.js",
   "scripts": {

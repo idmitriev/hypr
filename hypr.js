@@ -32,9 +32,10 @@ hypr.component = function component(spec, initialProps, id){
 		events = typeof spec.events === 'function' ?
 			spec.events(props, domEventStream, children) :
 			{},
-		state = stateStream.skipDuplicates(deepEqual).toProperty();
+		state = stateStream.skipDuplicates(deepEqual).toProperty(),
+		stateSpec = spec.state(props, domEventStream, children);
 
-	stateStream.plug(stream.combineTemplate(spec.state(props, domEventStream, children)));
+	stateStream.plug(typeof stateSpec.onValue === 'function' ? stateSpec : stream.combineTemplate(stateSpec));
 
 	return {
 		id: id,

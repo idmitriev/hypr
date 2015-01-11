@@ -17,7 +17,7 @@ module.exports = function(react) {
 						translateAttributes(
 							utils.mixin(
 								parentDomEventStream != null ?
-									injectEventHandlers(spec.props, parentDomEventStream) :
+									injectEventHandlers(spec.props == null ? {} : spec.props, parentDomEventStream) :
 									spec.props == null ? {} : spec.props,
 								{ ref: spec.id, key: spec.id }
 							)

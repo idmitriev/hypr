@@ -13,7 +13,16 @@ module.exports = function(react) {
 				}) :
 				react.createElement(
 					typeof spec.type === 'string' ? spec.type : getOrCreateCreactClass(spec.type),
-					translateAttributes(utils.mixin(parentDomEventStream != null ? injectEventHandlers(spec.props, parentDomEventStream) : spec.props, { ref: spec.id, key: spec.id })),
+					typeof spec.type === 'string' ?
+						translateAttributes(
+							utils.mixin(
+								parentDomEventStream != null ?
+									injectEventHandlers(spec.props, parentDomEventStream) :
+									spec.props == null ? {} : spec.props,
+								{ ref: spec.id, key: spec.id }
+							)
+						) :
+						spec.props,
 					createReactElement(spec.children, parentDomEventStream)
 				);
 	}

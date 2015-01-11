@@ -28,7 +28,7 @@ hypr.component = function component(spec, initialProps, id){
 		domEventStream = new stream.Bus(),
 		stateStream = new stream.Bus(),
 		children = childrenStream.toProperty({}).skipDuplicates(utils.haveSameKeys),
-		props = propStream.toProperty(utils.mixin(spec.defaults || {}, initialProps || {})),
+		props = propStream.toProperty(utils.mixin(spec.propDefaults || {}, initialProps || {})),
 		events = typeof spec.events === 'function' ?
 			spec.events(props, domEventStream, children) :
 			{},

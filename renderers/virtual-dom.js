@@ -73,15 +73,15 @@ module.exports = function(virtualDom) {
 		}
 	}
 
-	return function render(componentSpec, initialProps, mountNode) {
+	return function render(spec, props, mountNode, callback) {
 		var	requestRedraw = hypr.renderingScheduler(),
 				requestRootRedraw = function() {
 					requestRedraw(function() {
 						renderRoot(rootComponent.getState());
 					})
 				},
-				rootComponent = createComponent(null, componentSpec, initialProps),
-				rootView = createView(componentSpec, rootComponent);
+				rootComponent = createComponent(null, spec, props),
+				rootView = createView(spec, rootComponent);
 
 		var tree,
 			rootNode;
@@ -94,6 +94,10 @@ module.exports = function(virtualDom) {
 				rootNode = virtualDom.create(newTree);
 				mountNode.innerHTML = '';
 				mountNode.appendChild(rootNode);
+
+				if (utils.isFunction(callback)){
+					callback(rootComponent);
+				}
 			}
 			tree = newTree;
 		}

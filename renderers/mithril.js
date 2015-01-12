@@ -98,12 +98,17 @@ module.exports = function(mithril) {
 		);
 	}
 
-	return function render(spec, props, mountNode) {
+	return function render(spec, props, mountNode, callback) {
 		var
 			renderingScheduler = hypr.renderingScheduler(),
 			renderRoot = function() {
 				renderingScheduler(function() {
-					mithril.render(mountNode, rootView(rootComponent.getState()))
+					mithril.render(mountNode, rootView(rootComponent.getState()));
+
+					if ( utils.isFunction(callback) ){
+						callback(rootComponent);
+						callback = null;
+					}
 				});
 			},
 			rootComponent = createComponent(props.id, spec, props),

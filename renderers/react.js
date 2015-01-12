@@ -90,8 +90,8 @@ module.exports = function(react) {
 
 	var getOrCreateCreactClass = utils.singleArgMemoize(createReactClass,  { length: 1 });
 
-	return function render(spec, props, mountNode) {
-		return react.render(createReactElement({type: spec, props: props}), mountNode)._hyprComponent;
+	return function render(spec, props, mountNode, callback) {
+		return react.render(createReactElement({type: spec, props: props}), mountNode, callback)._hyprComponent;
 	}
 };
 

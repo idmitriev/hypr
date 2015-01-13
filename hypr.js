@@ -22,13 +22,14 @@ function hypr(rendererLib){
 
 hypr.component = function component(spec, initialProps, id){
 	id = id == null ? utils.randomString() : id;
+	initialProps = utils.mixin(spec.propDefaults || {}, initialProps || {});
 	var
 		childrenStream = new stream.Bus(),
 		propStream = new stream.Bus(),
 		domEventStream = new stream.Bus(),
 		stateStream = new stream.Bus(),
 		children = childrenStream.toProperty({}).skipDuplicates(utils.haveSameKeys),
-		props = propStream.toProperty(utils.mixin(spec.propDefaults || {}, initialProps || {})),
+		props = propStream.scan(initialProps, function(acc, next) { return utils.mixin(acc, next); }),
 		events = typeof spec.events === 'function' ?
 			spec.events(props, domEventStream, children) :
 			{},
@@ -40,10 +41,12 @@ hypr.component = function component(spec, initialProps, id){
 	return {
 		id: id,
 		pushProps: function(props) {
-			propStream.push(props)
+			propStream.push(props);
+			return this;
 		},
 		pushChildren: function(children) {
 			childrenStream.push(children);
+			return this;
 		},
 		domEventStream: domEventStream,
 		state: state,

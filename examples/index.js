@@ -15,7 +15,7 @@ var counterButon = {
 	state: function(props, domEvents) {
 		return {
 			text: props.map(r.prop('text')),
-			count: domEvents.filter(r.propEq('name', 'inc')).map(1).scan(0, sum)
+			count: props.map(r.prop('count')).flatMap(function(initialCount) { return domEvents.filter(r.propEq('name', 'inc')).map(1).scan(initialCount, sum); })
 		}
 	},
 	props: {
@@ -27,7 +27,8 @@ var counterButon = {
 }
 
 window.onload = function(){
-	hypr([react, virtualDom, mithril][Math.floor(Math.random()*3)])
-	(counterButon, { text: 'like' }, document.body)
+	[react, virtualDom, mithril].map(function(r,i){
+		hypr(r)(counterButon, { text: 'like', count: i }, document.querySelector('#button'+i));
+	})
 }
 

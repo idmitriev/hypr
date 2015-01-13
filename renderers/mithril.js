@@ -53,7 +53,7 @@ module.exports = function(mithril) {
 				createComponent(id, spec, props),
 			view = createView(spec, component);
 
-		component.pushProps(utils.mixin(spec.defaults, props));
+		component.pushProps(props);
 		component.render = parent.render;
 
 		if ( parent != null && id != null ) {

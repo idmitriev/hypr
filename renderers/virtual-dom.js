@@ -30,7 +30,7 @@ module.exports = function(virtualDom) {
 				createComponent(id, spec, props, parent.redraw),
 			 view = createView(spec, component);
 
-		component.pushProps(utils.mixin(spec.defaults, props));
+		component.pushProps(props);
 		component.redraw = parent.redraw;
 
 		if ( parent != null && id != null) {

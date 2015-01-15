@@ -45,15 +45,7 @@ module.exports = function(react) {
 				this._hyprComponent = hyprComponent;
 			},
 			componentDidMount: function() {
-				this._hyprComponent.pushChildren(
-					utils.mapValues(function(value){
-						return value._hyprComponent != null ?
-							utils.pick(['events', 'state'], value._hyprComponent) :
-							{}
-						},
-						this.refs
-					)
-				);
+				this._hyprComponent.pushChildren(getChildren(this.refs));
 				if (utils.isFunction(spec.onMount)) {
 					spec.onMount(this.getDOMNode(), this.state, this._hyprComponent.domEventStream);
 				}
@@ -62,6 +54,7 @@ module.exports = function(react) {
 				this._hyprComponent.pushProps(nextProps);
 			},
 			componentDidUpdate: function() {
+				this._hyprComponent.pushChildren(getChildren(this.refs));
 				if (utils.isFunction(spec.onUpdate)) {
 					spec.onUpdate(this.getDOMNode(), this.state);
 				}
@@ -127,4 +120,14 @@ function translateAttributes(props) {
 		},
 		props
 	);
+}
+
+function getChildren(refs){
+	return utils.mapValues(function(value){
+			return value._hyprComponent != null ?
+				utils.pick(['events', 'state'], value._hyprComponent) :
+			{}
+		},
+		refs
+	)
 }

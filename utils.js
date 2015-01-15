@@ -50,9 +50,9 @@ function randomString(length) {
 	).join('');
 }
 
-function pick(keys, o){
+function pick(keysToPick, o){
 	return reduce(function(acc, key){
-			if ( contains(key, keys)){
+			if ( contains(key, keysToPick)){
 				acc[key] = o[key];
 			}
 			return acc;

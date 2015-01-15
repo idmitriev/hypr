@@ -22,7 +22,7 @@ module.exports = function(react) {
 								{ ref: spec.id, key: spec.id }
 							)
 						) :
-						spec.props,
+						utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
 					createReactElement(spec.children, parentDomEventStream)
 				);
 	}

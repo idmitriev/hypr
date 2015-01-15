@@ -77,6 +77,7 @@ module.exports = function(react) {
 			},
 			render: function() {
 				return createReactElement({
+							id: this._hyprComponent.id,
 							type: utils.applyOrReturn(spec.type, this.state),
 							props: utils.applyOrReturn(spec.props, this.state),
 							children: utils.applyOrReturn(spec.children, this.state)

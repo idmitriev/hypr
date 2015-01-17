@@ -1,16 +1,3 @@
-module.exports = {
-	mixin: mixin,
-	randomString: randomString,
-	mapObject: mapObject,
-	isArray: isArray,
-	mapValues: mapValues,
-	haveSameKeys: haveSameKeys,
-	pick: pick,
-	isFunction: isFunction,
-	applyOrReturn: applyOrReturn,
-	singleArgMemoize: singleArgMemoize
-};
-
 function singleArgMemoize(fn) {
 	var knownArguments = [],
 		results = [];
@@ -229,3 +216,17 @@ function reduce(callback, initialValue, list) {
 function toArray(o){
 	return Array.prototype.slice.call(o);
 }
+
+module.exports = {
+	mixin: mixin,
+	randomString: randomString,
+	mapObject: mapObject,
+	isArray: isArray,
+	mapValues: mapValues,
+	haveSameKeys: haveSameKeys,
+	pick: pick,
+	isFunction: isFunction,
+	applyOrReturn: applyOrReturn,
+	singleArgMemoize: singleArgMemoize,
+	keys: keys
+};

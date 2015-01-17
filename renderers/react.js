@@ -113,7 +113,7 @@ function translateAttributes(props) {
 	var translation ={
 		'for': 'htmlFor',
 		'class': 'className'
-	};
+		};
 
 	return utils.mapObject(function(key, value) {
 			return [translation[key] || key, value]
@@ -123,11 +123,16 @@ function translateAttributes(props) {
 }
 
 function getChildren(refs){
-	return utils.mapValues(function(value){
-			return value._hyprComponent != null ?
-				utils.pick(['events', 'state'], value._hyprComponent) :
-			{}
+	return utils.mapObject(
+		function(key, value){
+			return [key, utils.pick(['events', 'state'], value._hyprComponent)]
 		},
-		refs
-	)
+		utils.pick(
+			utils.keys(refs).filter(function(key){
+				return refs[key]._hyprComponent != null;
+			}),
+			refs
+		)
+	);
 }
+

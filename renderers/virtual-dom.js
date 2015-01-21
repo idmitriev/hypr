@@ -128,11 +128,9 @@ ElementHook.prototype.hook = function (element, propName) {
 	if ( parent.onMount != null || parent.onUpdate ){
 		setTimeout(function() {
 			if ( !self.mounted && parent.onMount != null ) {
-				console.log('mount', element);
 				parent.onMount(element, parent.getState(), parent.domEventStream);
 				self.mounted = true;
 			} else {
-				console.log('update', element);
 				parent.onUpdate && parent.onUpdate(element, parent.getState(), parent.domEventStream);
 			}
 		}, 0)

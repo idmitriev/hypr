@@ -4,26 +4,26 @@ var
 	hypr = require('../hypr.js');
 
 module.exports = function(react) {
-	function createReactElement(spec, parentDomEventStream){
+	function createReactElement(spec, parentReactComponent){
 		return spec == null || typeof spec === 'string' || typeof spec === 'number' ?
 			spec :
 			utils.isArray(spec) ?
 				spec.map(function(element){
-					return createReactElement(element, parentDomEventStream)
+					return createReactElement(element, parentReactComponent)
 				}) :
 				react.createElement(
 					typeof spec.type === 'string' ? spec.type : getOrCreateCreactClass(spec.type),
 					typeof spec.type === 'string' ?
 						translateAttributes(
 							utils.mixin(
-								parentDomEventStream != null ?
-									injectEventHandlers(spec.props == null ? {} : spec.props, parentDomEventStream) :
-									spec.props == null ? {} : spec.props,
-								{ ref: spec.id, key: spec.id }
+								{ ref: spec.id, key: spec.id },
+								parentReactComponent._hyprComponent.domEventStream != null ?
+									injectEventHandlers(spec.props == null ? {} : utils.applyOrReturn(spec.props, parentReactComponent.state), parentReactComponent._hyprComponent.domEventStream) :
+									spec.props == null ? {} : utils.applyOrReturn(spec.props, parentReactComponent.state)
 							)
 						) :
 						utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
-					createReactElement(spec.children, parentDomEventStream)
+					createReactElement(spec.children, parentReactComponent)
 				);
 	}
 
@@ -75,7 +75,7 @@ module.exports = function(react) {
 							props: utils.applyOrReturn(spec.props, this.state),
 							children: utils.applyOrReturn(spec.children, this.state)
 						},
-						this._hyprComponent.domEventStream
+						this
 					);
 				}
 			}

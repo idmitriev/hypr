@@ -150,6 +150,10 @@ function injectEventHandlers(props, parentComponent) {
 			},
 			props
 		),
-		{ 'ev-update': new ElementHook(parentComponent) }
+		{
+			'ev-update': parentComponent.updateHook != null ?
+				parentComponent.updateHook :
+				(parentComponent.updateHook = new ElementHook(parentComponent))
+		}
 	);
 }

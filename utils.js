@@ -186,6 +186,12 @@ function map(fn, list) {
 	}, [], list);
 }
 
+function filter(fn, list) {
+	return reduce(function(acc, item){
+		return acc.concat(fn(item) ? item : []);
+	}, [], list)
+}
+
 function reduce(callback, initialValue, list) {
 	'use strict';
 
@@ -213,6 +219,39 @@ function reduce(callback, initialValue, list) {
 	return value;
 }
 
+function forEach(fn, list) {
+	var T, k;
+
+	if (this == null) {
+		throw new TypeError(' this is null or not defined');
+	}
+
+	var
+		O = Object(this),
+		len = O.length >>> 0;
+
+	if (typeof fn !== "function") {
+		throw new TypeError(fn + ' is not a function');
+	}
+
+	if (arguments.length > 1) {
+		T = list;
+	}
+
+	k = 0;
+
+	while (k < len) {
+
+		var kValue;
+
+		if (k in O) {
+			kValue = O[k];
+			fn.call(T, kValue, k, O);
+		}
+		k++;
+	}
+}
+
 function toArray(o){
 	return Array.prototype.slice.call(o);
 }
@@ -228,5 +267,6 @@ module.exports = {
 	isFunction: isFunction,
 	applyOrReturn: applyOrReturn,
 	singleArgMemoize: singleArgMemoize,
-	keys: keys
+	keys: keys,
+	forEach: forEach
 };

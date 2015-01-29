@@ -109,29 +109,27 @@ function parseTag(tag){
 
 hypr.element = hypr.e = function(tag, props, children){
 	var
-		_id,
-		_tagName = 'div',
-		_props = {},
-		_children = [];
-
-	if ( !children && typeof props === 'object' ){
-		_children = props;
+		parsed = parseTag(tag);
+	return {
+		id: props.id != null ?
+			props.id :
+			parsed.id != null ?
+				parsed.id :
+				null,
+		type: parsed.tagName != null ?
+			parsed.tagName :
+			'div',
+		props: utils.mixin(
+			props,
+			parsed.className ?
+			{class: parsed.className} :
+			{}
+		),
+		_children: children == null && typeof props !== 'object' ?
+			props :
+			children
 	}
-
-	var parsed = parseTag(tag);
-
-	_id = props.id;
-	if ( parsed.id != null ){
-		_id = parsed.id;
-	}
-
-	if ( parsed.className != null ){
-		_props.className = parsed.className;
-	}
-
-	return { id: _id, type: _tagName, props: _props, children: _children };
 }
-
 
 utils.forEach(
 	function(tagName){

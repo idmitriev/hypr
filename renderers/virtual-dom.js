@@ -127,10 +127,18 @@ ElementHook.prototype.hook = function (element, propName) {
 		parent = this.parent;
 
 	if ( parent.nextChildren != null ) {
+		utils.map(
+			function(componentId){
+				if ( parent.nextChildren[componentId] == null) {
+					parent.children[componentId].dispose();
+				}
+			},
+			utils.keys(parent.children || {})
+		);
+
 		parent.children = parent.nextChildren;
 		parent.pushChildren(parent.nextChildren);
 		parent.nextChildren = null;
-		//TODO dispose old components
 	}
 	if ( parent.onMount != null || parent.onUpdate ){
 		setTimeout(function() {

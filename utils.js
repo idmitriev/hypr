@@ -268,5 +268,6 @@ module.exports = {
 	applyOrReturn: applyOrReturn,
 	singleArgMemoize: singleArgMemoize,
 	keys: keys,
-	forEach: forEach
+	forEach: forEach,
+	map: map
 };

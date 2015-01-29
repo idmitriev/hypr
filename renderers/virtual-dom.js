@@ -3,7 +3,7 @@ var
 	utils = require('../utils.js');
 
 module.exports = function(virtualDom) {
-	function renderElement(element, component){
+	function renderElement(element, component, isComponentRootElement){
 		return element == null || typeof element === 'string' ?
 			element :
 			typeof element === 'number' ?
@@ -14,7 +14,13 @@ module.exports = function(virtualDom) {
 						virtualDom.h(
 							element.type,
 							utils.mixin(
-								injectEventHandlers(element.props, component, component.onMount),
+								injectEventHandlers(
+									element.props,
+									component.domEventStream,
+									isComponentRootElement ?
+										component :
+										null
+								),
 								element.id ?
 									{ key: element.id } :
 									{}
@@ -68,7 +74,8 @@ module.exports = function(virtualDom) {
 					props: typeof spec.props === 'function' ? spec.props(state) : spec.props,
 					children: typeof spec.children === 'function' ? spec.children(state) : spec.children
 				},
-				component
+				component,
+				true
 			)
 		}
 	}
@@ -130,30 +137,38 @@ ElementHook.prototype.hook = function (element, propName) {
 			if ( !self.mounted && parent.onMount != null ) {
 				parent.onMount(element, parent.getState(), parent.domEventStream);
 				self.mounted = true;
-			} else {
-				parent.onUpdate && parent.onUpdate(element, parent.getState(), parent.domEventStream);
 			}
+			parent.onUpdate && parent.onUpdate(element, parent.getState(), parent.domEventStream);
 		}, 0)
 	}
 }
 
-function injectEventHandlers(props, parentComponent) {
+function injectEventHandlers(props, domEventStream, parentComponent) {
 	return utils.mixin(
 		utils.mapObject(
 			function(key, value) {
 				return key.indexOf('on') == 0 ?
 					[key.toLowerCase(), function eventHandler(event) {
 						event.stopPropagation();
-						parentComponent.domEventStream.push(utils.mixin(event, typeof value === 'string' ? {name: value} : value))
+						domEventStream.push(
+							utils.mixin(
+								event,
+								typeof value === 'string' ?
+									{ name: value } :
+									value
+							)
+						)
 					}] :
 					[key, value]
 			},
 			props
 		),
-		{
-			'ev-update': parentComponent.updateHook != null ?
-				parentComponent.updateHook :
-				(parentComponent.updateHook = new ElementHook(parentComponent))
-		}
+		parentComponent != null ?
+			{
+				'ev-update': parentComponent.updateHook != null ?
+					parentComponent.updateHook :
+					(parentComponent.updateHook = new ElementHook(parentComponent))
+			}:
+			{}
 	);
 }

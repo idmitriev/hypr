@@ -122,10 +122,10 @@ hypr.element = hypr.e = function(tag, props, children){
 		props: utils.mixin(
 			props,
 			parsed.className ?
-			{class: parsed.className} :
+			{ class: parsed.className } :
 			{}
 		),
-		_children: children == null && typeof props !== 'object' ?
+		children: children == null && typeof props !== 'object' ?
 			props :
 			children
 	}

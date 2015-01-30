@@ -36,10 +36,18 @@ module.exports = function(mithril) {
 					}
 
 					if (component.nextChildren != null) {
+						utils.map(
+							function(componentId){
+								if ( parent.nextChildren[componentId] == null) {
+									parent.children[componentId].dispose();
+								}
+							},
+							utils.keys(parent.children || {})
+						);
+
 						component.children = component.nextChildren;
 						component.nextChildren = null;
 						component.pushChildren(component.children);
-						//TODO dispose old components
 					}
 				}
 			);

@@ -11,6 +11,6 @@ window.onload = function(){
 		hypr(r)(counterButton, { text: (['react', 'virtualDom', 'mithril'])[i], count: i }, document.querySelector('#button'+i));
 	});
 
-	hypr(react)(videoPlayer, { src: 'http://www.w3schools.com/html/mov_bbb.mp4', currentTime: 5}, document.querySelector('#video')).state.log('videoPlayer');
+	hypr(virtualDom)(videoPlayer, { src: 'http://www.w3schools.com/html/mov_bbb.mp4', currentTime: 5}, document.querySelector('#video')).state.log('videoPlayer');
 }
 

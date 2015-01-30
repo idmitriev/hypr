@@ -222,12 +222,12 @@ function reduce(callback, initialValue, list) {
 function forEach(fn, list) {
 	var T, k;
 
-	if (this == null) {
+	if (list == null) {
 		throw new TypeError(' this is null or not defined');
 	}
 
 	var
-		O = Object(this),
+		O = Object(list),
 		len = O.length >>> 0;
 
 	if (typeof fn !== "function") {

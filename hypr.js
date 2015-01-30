@@ -133,9 +133,11 @@ hypr.element = hypr.e = function(tag, props, children){
 	}
 }
 
+hypr.html = {};
+
 utils.forEach(
 	function(tagName){
-		hypr[tagName] = function(props, children) {
+		hypr.html[tagName] = function(props, children) {
 			return hypr.element(tagName, props, children);
 		}
 	},

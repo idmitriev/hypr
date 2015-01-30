@@ -109,7 +109,9 @@ function parseTag(tag){
 
 hypr.element = hypr.e = function(tag, props, children){
 	var
-		parsed = parseTag(tag);
+		parsed = typeof tag === 'string' ?
+			parseTag(tag) :
+			{};
 	return {
 		id: props.id != null ?
 			props.id :
@@ -118,7 +120,7 @@ hypr.element = hypr.e = function(tag, props, children){
 				null,
 		type: parsed.tagName != null ?
 			parsed.tagName :
-			'div',
+			tag,
 		props: utils.mixin(
 			props,
 			parsed.className ?

@@ -44,6 +44,12 @@ module.exports = function(virtualDom) {
 			parent.nextChildren[component.id] = component;
 		}
 
+		if ( component.element ){
+			setTimeout(function(){
+				component.onUpdate(component.element, component.getState());
+			}, 0);
+		}
+
 		return view(component.getState());
 	}
 
@@ -116,37 +122,39 @@ module.exports = function(virtualDom) {
 	};
 }
 
-function ElementHook(parent) {
-	this.parent = parent;
+function ElementHook(component) {
+	this.parent = component;
 	this.mounted = false;
 }
 
 ElementHook.prototype.hook = function (element, propName) {
 	var
 		self = this,
-		parent = this.parent;
+		component = this.component;
 
-	if ( parent.nextChildren != null ) {
+	component.element = element;
+
+	if ( component.nextChildren != null ) {
 		utils.map(
 			function(componentId){
-				if ( parent.nextChildren[componentId] == null) {
-					parent.children[componentId].dispose();
+				if ( component.nextChildren[componentId] == null) {
+					component.children[componentId].dispose();
 				}
 			},
-			utils.keys(parent.children || {})
+			utils.keys(component.children || {})
 		);
 
-		parent.children = parent.nextChildren;
-		parent.pushChildren(parent.nextChildren);
-		parent.nextChildren = null;
+		component.children = component.nextChildren;
+		component.pushChildren(component.nextChildren);
+		component.nextChildren = null;
 	}
-	if ( parent.onMount != null || parent.onUpdate ){
+	if ( component.onMount != null || component.onUpdate != null ){
 		setTimeout(function() {
-			if ( !self.mounted && parent.onMount != null ) {
-				parent.onMount(element, parent.getState(), parent.domEventStream);
+			if ( !self.mounted && component.onMount != null ) {
+				component.onMount(element, component.getState(), component.domEventStream);
 				self.mounted = true;
 			}
-			parent.onUpdate && parent.onUpdate(element, parent.getState(), parent.domEventStream);
+			component.onUpdate && component.onUpdate(element, component.getState(), component.domEventStream);
 		}, 0)
 	}
 }

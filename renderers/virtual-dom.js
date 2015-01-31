@@ -44,7 +44,7 @@ module.exports = function(virtualDom) {
 			parent.nextChildren[component.id] = component;
 		}
 
-		if ( component.element ){
+		if ( component.element != null && component.onUpdate != null ){
 			setTimeout(function(){
 				component.onUpdate(component.element, component.getState());
 			}, 0);

@@ -182,7 +182,7 @@ function isArray(o) {
 
 function map(fn, list) {
 	return reduce(function(acc, item){
-		return acc.concat(fn.apply(this, item));
+		return acc.concat(fn.apply(this, [item]));
 	}, [], list);
 }
 

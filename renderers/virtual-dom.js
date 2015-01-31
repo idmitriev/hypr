@@ -44,9 +44,9 @@ module.exports = function(virtualDom) {
 			parent.nextChildren[component.id] = component;
 		}
 
-		if ( component.element != null && component.onUpdate != null ){
-			setTimeout(function(){
-				component.onUpdate(component.element, component.getState());
+		if ( component.onUpdate  != null ) {
+			setTimeout(function () {
+				component.onUpdate();
 			}, 0);
 		}
 
@@ -59,8 +59,30 @@ module.exports = function(virtualDom) {
 			firstRender = true,
 			state;
 
-		component.onMount = spec.onMount;
-		component.onUpdate = spec.onUpdate;
+		component.onMount = function() {
+			if ( spec.onMount != null ) {
+				spec.onMount(component.element, component.getState(), component.domEventStream);
+			}
+		};
+		component.onUpdate = function() {
+			if ( component.nextChildren != null ) {
+				utils.map(
+					function(componentId){
+						if ( component.nextChildren[componentId] == null) {
+							component.children[componentId].dispose();
+						}
+					},
+					utils.keys(component.children || {})
+				);
+
+				component.children = component.nextChildren;
+				component.pushChildren(component.nextChildren);
+				component.nextChildren = null;
+			}
+			if ( component.element != null && spec.onUpdate != null ) {
+				spec.onUpdate(component.element, component.getState(), component.domEventStream);
+			}
+		};
 		component.getState = function() { return state };
 		component.state.onValue(function(s) {
 			state = s;
@@ -134,29 +156,13 @@ ElementHook.prototype.hook = function (element, propName) {
 
 	component.element = element;
 
-	if ( component.nextChildren != null ) {
-		utils.map(
-			function(componentId){
-				if ( component.nextChildren[componentId] == null) {
-					component.children[componentId].dispose();
-				}
-			},
-			utils.keys(component.children || {})
-		);
-
-		component.children = component.nextChildren;
-		component.pushChildren(component.nextChildren);
-		component.nextChildren = null;
-	}
-	if ( component.onMount != null || component.onUpdate != null ){
-		setTimeout(function() {
-			if ( !self.mounted && component.onMount != null ) {
-				component.onMount(element, component.getState(), component.domEventStream);
-				self.mounted = true;
-			}
-			component.onUpdate && component.onUpdate(element, component.getState(), component.domEventStream);
-		}, 0)
-	}
+	setTimeout(function() {
+		if ( !self.mounted ) {
+			component.onMount();
+			self.mounted = true;
+		}
+		component.onUpdate();
+	}, 0);
 }
 
 function injectEventHandlers(props, domEventStream, component) {

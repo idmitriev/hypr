@@ -123,7 +123,7 @@ module.exports = function(virtualDom) {
 }
 
 function ElementHook(component) {
-	this.parent = component;
+	this.component = component;
 	this.mounted = false;
 }
 
@@ -159,7 +159,7 @@ ElementHook.prototype.hook = function (element, propName) {
 	}
 }
 
-function injectEventHandlers(props, domEventStream, parentComponent) {
+function injectEventHandlers(props, domEventStream, component) {
 	return utils.mixin(
 		utils.mapObject(
 			function(key, value) {
@@ -179,11 +179,11 @@ function injectEventHandlers(props, domEventStream, parentComponent) {
 			},
 			props
 		),
-		parentComponent != null ?
+		component != null ?
 			{
-				'ev-update': parentComponent.updateHook != null ?
-					parentComponent.updateHook :
-					(parentComponent.updateHook = new ElementHook(parentComponent))
+				'ev-update': component.updateHook != null ?
+					component.updateHook :
+					(component.updateHook = new ElementHook(component))
 			}:
 			{}
 	);

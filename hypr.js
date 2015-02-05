@@ -49,6 +49,9 @@ hypr.component = function component(spec, initialProps, id){
 			propStream.push(props);
 			return this;
 		},
+		plugProps: function(props) {
+			return propStream.plug(props);
+		},
 		pushChildren: function(children) {
 			childrenStream.push(children);
 			return this;

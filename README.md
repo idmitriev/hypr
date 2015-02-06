@@ -1,5 +1,7 @@
 # hypr
 
+[![Join the chat at https://gitter.im/idmitriev/hypr](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/idmitriev/hypr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![NPM version][1]][2]
 [![Davis Dependency status][3]][4]
 [![experimental](http://hughsk.github.io/stability-badges/dist/experimental.svg)](http://github.com/hughsk/stability-badges)

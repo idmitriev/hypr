@@ -101,10 +101,10 @@ function parseTag(tag){
 		classRx = /\.([a-zA-Z0-9_:-]+)/g,
 		id = tag.match(idRx) != null ?
 			tag.match(idRx)[0] :
-			null,
+			undefined,
 		className = tag.match(classRx) != null ?
 			tag.match(classRx).join(' ').replace('.', '') :
-			null,
+			undefined,
 		tagName = tag.split(/[#|\.]/)[0];
 
 	return { id: id, className: className, tagName: tagName };
@@ -120,13 +120,13 @@ hypr.element = hypr.e = function(tag, props, children){
 			props.id :
 			parsed.id != null ?
 				parsed.id :
-				null,
+				undefined,
 		type: parsed.tagName != null ?
 			parsed.tagName :
 			tag,
 		props: utils.mixin(
 			props,
-			parsed.className ?
+			parsed.className != null ?
 			{ class: parsed.className } :
 			{}
 		),

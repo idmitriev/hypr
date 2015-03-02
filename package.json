@@ -17,8 +17,8 @@
   "repository": "https://github.com/idmitriev/hypr.git",
   "license": "MIT",
   "dependencies": {
-    "baconjs": "^0.7.41",
-    "deep-equal": "^0.2.1",
+    "baconjs": "^0.7.53",
+    "deep-equal": "^1.0.0",
     "raf": "^2.0.4"
   }
 }

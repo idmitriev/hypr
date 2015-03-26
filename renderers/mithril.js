@@ -7,11 +7,18 @@ module.exports = function(mithril) {
 		return element == null || typeof element === 'string' || typeof element === 'number' ?
 			element :
 			utils.isArray(element) ?
-				element.map(function(element) { return renderElement(element, component) }) :
+				element.map(function(element) {
+					return renderElement(element, component)
+				}) :
 				typeof element.type === 'string' ?
 					mithril(
 						element.type,
-						utils.mixin(injectEventHandlers(element.props, component.domEventStream, onMount), element.id ? { key: element.id } : {}),
+						utils.mixin(
+							injectEventHandlers(element.props, component.domEventStream, onMount),
+							element.id ?
+								{ key: element.id } :
+								{}
+						),
 						renderElement(element.children, component)
 					) :
 					renderComponent(element.id, element.type, element.props, component)
@@ -21,11 +28,9 @@ module.exports = function(mithril) {
 		return function(state) {
 			return renderElement({
 					id: component.id,
-					type: typeof spec.type === 'function' ? spec.type(state) : spec.type,
-					props: typeof spec.props === 'function' ?
-						spec.props(state) :
-						spec.props,
-					children: typeof spec.children === 'function' ? spec.children(state) : spec.children
+					type: utils.applyOrReturn(spec.type, state),
+					props: utils.applyOrReturn(spec.props, state),
+					children: utils.applyOrReturn(spec.children, state)
 				},
 				component,
 				function (element, isInit) {
@@ -94,7 +99,17 @@ module.exports = function(mithril) {
 				return key.indexOf('on') == 0 ?
 					[key.toLowerCase(), function eventHandler(event) {
 						event.stopPropagation();
-						domEventStream.push(utils.mixin(event, typeof value === 'string' ? {name: value} : value))
+						domEventStream.push(
+							utils.isFunction(value) ?
+								value(event) :
+								utils.mixin(
+									{},
+									event,
+									typeof value === 'string' ?
+									{ name: value } :
+										value
+								)
+						)
 					}] :
 					[key, value]
 				},
@@ -102,7 +117,7 @@ module.exports = function(mithril) {
 			),
 			onMount != null ?
 				{ config:  onMount } :
-				{ }
+				{}
 		);
 	}
 
@@ -127,4 +142,4 @@ module.exports = function(mithril) {
 
 		return rootComponent;
 	};
-}
+};

@@ -163,7 +163,7 @@ ElementHook.prototype.hook = function (element, propName) {
 		}
 		component.onUpdate();
 	}, 0);
-}
+};
 
 function injectEventHandlers(props, domEventStream, component) {
 	return utils.mixin(
@@ -173,12 +173,15 @@ function injectEventHandlers(props, domEventStream, component) {
 					[key.toLowerCase(), function eventHandler(event) {
 						event.stopPropagation();
 						domEventStream.push(
-							utils.mixin(
-								event,
-								typeof value === 'string' ?
+							utils.isFunction(value) ?
+								value(event) :
+								utils.mixin(
+									{},
+									event,
+									typeof value === 'string' ?
 									{ name: value } :
-									value
-							)
+										value
+								)
 						)
 					}] :
 					[key, value]

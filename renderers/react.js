@@ -8,18 +8,25 @@ module.exports = function(react) {
 		return spec == null || typeof spec === 'string' || typeof spec === 'number' ?
 			spec :
 			utils.isArray(spec) ?
-				spec.map(function(element){
-					return createReactElement(element, parentReactComponent)
+				spec.map(function(spec){
+					return createReactElement(spec, parentReactComponent)
 				}) :
 				react.createElement(
-					typeof spec.type === 'string' ? spec.type : getOrCreateCreactClass(spec.type),
+					typeof spec.type === 'string' ?
+						spec.type :
+						getOrCreateCreactClass(spec.type),
 					typeof spec.type === 'string' ?
 						translateAttributes(
 							utils.mixin(
 								{ ref: spec.id, key: spec.id },
 								parentReactComponent._hyprComponent.domEventStream != null ?
-									injectEventHandlers(spec.props == null ? {} : utils.applyOrReturn(spec.props, parentReactComponent.state), parentReactComponent._hyprComponent.domEventStream) :
-									spec.props == null ? {} : utils.applyOrReturn(spec.props, parentReactComponent.state)
+									injectEventHandlers(spec.props == null ?
+										{} :
+										utils.applyOrReturn(spec.props, parentReactComponent.state),
+									parentReactComponent._hyprComponent.domEventStream) :
+									spec.props == null ?
+										{} :
+										utils.applyOrReturn(spec.props, parentReactComponent.state)
 							)
 						) :
 						utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
@@ -85,7 +92,14 @@ module.exports = function(react) {
 	var getOrCreateCreactClass = utils.singleArgMemoize(createReactClass,  { length: 1 });
 
 	return function render(spec, props, mountNode, callback) {
-		return react.render(createReactElement({type: spec, props: props}), mountNode, callback)._hyprComponent;
+		return react.render(
+			createReactElement({
+				type: spec,
+				props: props
+			}),
+			mountNode,
+			callback
+		)._hyprComponent;
 	}
 };
 
@@ -100,7 +114,17 @@ function injectEventHandlers(props, domEventStream) {
 				camelizeOnAttr(key),
 				function eventHandler(event) {
 					event.stopPropagation();
-					domEventStream.push(utils.mixin(event, typeof value === 'string' ? {name: value} : value))
+					domEventStream.push(
+						utils.isFunction(value) ?
+							value(event) :
+							utils.mixin(
+								{},
+								event,
+								typeof value === 'string' ?
+									{ name: value } :
+									value
+							)
+					)
 				}
 			] :
 			[key, value]
@@ -113,7 +137,7 @@ function translateAttributes(props) {
 	var translation ={
 		'for': 'htmlFor',
 		'class': 'className'
-		};
+	};
 
 	return utils.mapObject(function(key, value) {
 			return [translation[key] || key, value]

@@ -12,16 +12,20 @@ function hypr(rendererLib){
 
 	return (rendererLib.createClass != null && rendererLib.createElement != null && rendererLib.render != null ?
 		reactRenderer :
-		(typeof rendererLib === 'function' && rendererLib.module != null) ?
+		utils.isFunction(rendererLib) && rendererLib.module != null ?
 			mithrilRenderer :
 			rendererLib.h != null && rendererLib.diff != null && rendererLib.patch != null && rendererLib.create != null ?
 				virtualDomRenderer :
-				function() { throw new Error('Rendering library not supported'); }
+				function() {
+					throw new Error('Rendering library not supported');
+				}
 		)(rendererLib);
 }
 
 hypr.component = function component(spec, initialProps, id){
-	id = id == null ? utils.randomString() : id;
+	id = id == null ?
+		utils.randomString() :
+		id;
 	initialProps = utils.mixin(spec.propDefaults || {}, initialProps || {});
 	var
 		childrenStream = new stream.Bus(),
@@ -35,13 +39,16 @@ hypr.component = function component(spec, initialProps, id){
 				return utils.mixin(acc, next);
 			}
 		),
-		events = typeof spec.events === 'function' ?
+		events = utils.isFunction(spec.events) ?
 			spec.events(props, domEventStream, children) :
 			{},
 		state = stateStream.skipDuplicates(deepEqual).toProperty(),
 		stateSpec = spec.state(props, domEventStream, children);
 
-	stateStream.plug(typeof stateSpec.onValue === 'function' ? stateSpec : stream.combineTemplate(stateSpec));
+	stateStream.plug(utils.isFunction(stateSpec.onValue) ?
+		stateSpec :
+		stream.combineTemplate(stateSpec)
+	);
 
 	return {
 		id: id,
@@ -93,7 +100,7 @@ hypr.renderingScheduler = function(){
 	}
 
 	return render;
-}
+};
 
 function parseTag(tag){
 	var
@@ -107,7 +114,11 @@ function parseTag(tag){
 			undefined,
 		tagName = tag.split(/[#|\.]/)[0];
 
-	return { id: id, className: className, tagName: tagName };
+	return {
+		id: id,
+		className: className,
+		tagName: tagName
+	};
 }
 
 hypr.element = hypr.e = function(tag, props, children){
@@ -117,24 +128,24 @@ hypr.element = hypr.e = function(tag, props, children){
 			{};
 	return {
 		id: props.id != null ?
-			props.id :
-			parsed.id != null ?
-				parsed.id :
-				undefined,
+				props.id :
+				parsed.id != null ?
+					parsed.id :
+					undefined,
 		type: parsed.tagName != null ?
-			parsed.tagName :
-			tag,
+				parsed.tagName :
+				tag,
 		props: utils.mixin(
 			props,
 			parsed.className != null ?
-			{ class: parsed.className } :
-			{}
+				{ class: parsed.className } :
+				{}
 		),
 		children: children == null && typeof props !== 'object' ?
 			props :
 			children
 	}
-}
+};
 
 hypr.html = {};
 

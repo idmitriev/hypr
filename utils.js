@@ -6,7 +6,9 @@ function singleArgMemoize(fn) {
 		var argument = arguments[0],
 			argumentIndex = knownArguments.indexOf(argument);
 
+
 		if ( argumentIndex != -1 ){
+			console.log('cache hit');
 			return results[argumentIndex];
 		} else {
 			var newResult = fn(argument);

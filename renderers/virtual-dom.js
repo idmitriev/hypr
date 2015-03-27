@@ -98,9 +98,9 @@ module.exports = function(virtualDom) {
 	function createView(spec, component){
 		return function(state) {
 			return renderElement({
-					type: typeof spec.type === 'function' ? spec.type(state) : spec.type,
-					props: typeof spec.props === 'function' ? spec.props(state) : spec.props,
-					children: typeof spec.children === 'function' ? spec.children(state) : spec.children
+					type: utils.applyOrReturn(spec.type, state),
+					props: utils.applyOrReturn(spec.props, state),
+					children: utils.applyOrReturn(spec.children, state)
 				},
 				component,
 				true

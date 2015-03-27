@@ -22,7 +22,7 @@ function sum(a,b){
 	return a+b;
 }
 
-var counterButon = {
+var counterButton = hypr.component({
 	name: 'counterButton',
 	type: 'button',
 	state: function(props, domEvents) {
@@ -37,11 +37,13 @@ var counterButon = {
 	children: function(state){
 		return [state.text, state.count].join(' ');
 	}
-}
+})
 
 window.onload = function(){
-	hypr([react, virtualDom, mithril][Math.floor(Math.random()*3)])
-	(counterButon, { text: 'like' }, document.body)
+	hypr([react, virtualDom, mithril][Math.floor(Math.random()*3)])(
+		counterButton({ text: 'like' }),
+		document.body
+	);
 }
 ```
 

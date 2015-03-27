@@ -1,5 +1,5 @@
 var
-	hypr = require('../../hypr'),
+	hypr = require('../../src/hypr'),
 	video = require('./video'),
 	r = require('ramda');
 

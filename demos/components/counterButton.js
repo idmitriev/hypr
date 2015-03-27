@@ -1,5 +1,5 @@
 var
-	hypr = require('../../hypr'),
+	hypr = require('../../src/hypr'),
 	r = require('ramda');
 
 function sum(a,b){

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "examples": "browserify index.js > app.js && open index.html"
+    "demos": "browserify index.js > app.js && open index.html"
   },
   "author": "",
   "license": "ISC",

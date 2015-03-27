@@ -1,5 +1,5 @@
 var
-	hypr = require('../hypr'),
+	hypr = require('../src'),
 	react = require('react'),
 	virtualDom = require('virtual-dom'),
 	mithril = require('mithril'),

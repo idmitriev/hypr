@@ -1,6 +1,7 @@
 var
-	hypr = require('../hypr.js'),
-	utils = require('../utils.js');
+	hyprComponent = require('../component'),
+	scheduler = require('../scheduler'),
+	utils = require('../utils');
 
 module.exports = function(virtualDom) {
 	function renderElement(element, component, isComponentRootElement){
@@ -55,7 +56,7 @@ module.exports = function(virtualDom) {
 
 	function createComponent(id, spec, initialProps) {
 		var
-			component = hypr.component(spec, initialProps, id),
+			component = hyprComponent(spec, initialProps, id),
 			firstRender = true,
 			state;
 
@@ -109,14 +110,14 @@ module.exports = function(virtualDom) {
 	}
 
 	return function render(element, mountNode, callback) {
-		var	requestRedraw = hypr.renderingScheduler(),
-				requestRootRedraw = function() {
-					requestRedraw(function() {
-						renderRoot(rootComponent.getState());
-					})
-				},
-				rootComponent = createComponent(null, element.type, element.props),
-				rootView = createView(element.type, rootComponent);
+		var	requestRedraw = scheduler(),
+			requestRootRedraw = function() {
+				requestRedraw(function() {
+					renderRoot(rootComponent.getState());
+				})
+			},
+			rootComponent = createComponent(null, element.type, element.props),
+			rootView = createView(element.type, rootComponent);
 
 		var tree,
 			rootNode;
@@ -150,8 +151,7 @@ function ElementHook(component) {
 }
 
 ElementHook.prototype.hook = function (element, propName) {
-	var
-		self = this,
+	var self = this,
 		component = this.component;
 
 	component.element = element;

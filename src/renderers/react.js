@@ -1,7 +1,7 @@
 var
 	stream = require('baconjs'),
-	utils = require('../utils.js'),
-	hypr = require('../hypr.js');
+	utils = require('../utils'),
+	hyprComponent = require('../component');
 
 module.exports = function(react) {
 	function createReactElement(spec, parentReactComponent){
@@ -41,15 +41,13 @@ module.exports = function(react) {
 				return spec.defaults || {};
 			},
 			componentWillMount: function() {
-				var
-					self = this,
-					hyprComponent = hypr.component(spec, this.props, this.props.id);
+				var self = this;
 
-				hyprComponent.state.onValue(function(state){
+				this._hyprComponent = hyprComponent(spec, this.props, this.props.id);
+
+				this._hyprComponent.state.onValue(function(state){
 					return self.setState(state);
 				});
-
-				this._hyprComponent = hyprComponent;
 			},
 			componentDidMount: function() {
 				this._hyprComponent.pushChildren(getChildren(this.refs));

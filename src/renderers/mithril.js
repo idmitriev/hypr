@@ -1,6 +1,7 @@
 var
-	hypr = require('../hypr.js'),
-	utils = require('../utils.js');
+	hyprComponent = require('../component'),
+	scheduler = require('../scheduler'),
+	utils = require('../utils');
 
 module.exports = function(mithril) {
 	function renderElement(element, component, onMount) {
@@ -80,7 +81,7 @@ module.exports = function(mithril) {
 	function createComponent(id, spec, initialProps) {
 		var
 			state,
-			component = hypr.component(spec, initialProps, id);
+			component = hyprComponent(spec, initialProps, id);
 
 		component.getState = function() { return state; };
 		component.state.onValue(function(s) {
@@ -117,7 +118,7 @@ module.exports = function(mithril) {
 
 	return function render(element, mountNode, callback) {
 		var
-			renderingScheduler = hypr.renderingScheduler(),
+			renderingScheduler = scheduler(),
 			renderRoot = function() {
 				renderingScheduler(function() {
 					mithril.render(mountNode, rootView(rootComponent.getState()));

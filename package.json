@@ -2,7 +2,7 @@
   "name": "hypr",
   "version": "0.5.19",
   "description": "Build UI components with reactive state. Render with react, virtual-dom or mithril.",
-  "main": "hypr.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

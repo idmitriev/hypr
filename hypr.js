@@ -22,7 +22,39 @@ function hypr(rendererLib){
 		)(rendererLib);
 }
 
+hypr.element = hypr.e = function element(tag, props, children){
+	var
+		parsed = typeof tag === 'string' ?
+			parseTag(tag) :
+			{};
+	return {
+		id: props.id != null ?
+			props.id :
+			parsed.id != null ?
+				parsed.id :
+				undefined,
+		type: parsed.tagName != null ?
+			parsed.tagName :
+			tag,
+		props: utils.mixin(
+			props,
+			parsed.className != null ?
+				{ class: parsed.className } :
+				{}
+		),
+		children: children == null && typeof props !== 'object' ?
+			props :
+			children
+	}
+};
+
 hypr.component = function component(spec, initialProps, id){
+	if ( arguments.length === 1) {
+		return function component(props) {
+			return hypr.element(spec, props);
+		}
+	}
+
 	id = id == null ?
 		utils.randomString() :
 		id;
@@ -75,6 +107,7 @@ hypr.component = function component(spec, initialProps, id){
 			].map(function(stream){
 				stream.end()
 			});
+			return this;
 		}
 	}
 };
@@ -121,40 +154,13 @@ function parseTag(tag){
 	};
 }
 
-hypr.element = hypr.e = function(tag, props, children){
-	var
-		parsed = typeof tag === 'string' ?
-			parseTag(tag) :
-			{};
-	return {
-		id: props.id != null ?
-				props.id :
-				parsed.id != null ?
-					parsed.id :
-					undefined,
-		type: parsed.tagName != null ?
-				parsed.tagName :
-				tag,
-		props: utils.mixin(
-			props,
-			parsed.className != null ?
-				{ class: parsed.className } :
-				{}
-		),
-		children: children == null && typeof props !== 'object' ?
-			props :
-			children
-	}
-};
-
-hypr.html = {};
-
-utils.forEach(
-	function(tagName){
-		hypr.html[tagName] = function(props, children) {
+hypr.html = utils.reduce(function(html, tagName){
+		html[tagName] = function(props, children) {
 			return hypr.element(tagName, props, children);
-		}
+		};
+		return html;
 	},
+	{},
 	['a','abbr','address','area','article','aside','audio','b','base','bdi','bdo','blockquote','body','br','button','canvas','caption','cite','code','col','colgroup','data','datalist','dd','del','details','dfn','dialog','div','dl','dt','em','embed','fieldset','figcaption','figure','footer','form','h1','h2','h3','h4','h5','h6','head','header','hgroup','hr','html','i','iframe','img','input','ins','kbd','keygen','label','legend','li','link','main','map','mark','menu','menuitem','meta','meter','nav','noscript','object','ol','optgroup','option','output','p','param','pre','progress','q','rb','rp','rt','rtc','ruby','s','samp','script','section','select','small','source','span','strong','style','sub','summary','sup','table','tbody','td','template','textarea','tfoot','th','thead','time','title','tr','track','u','ul','var','video','wbr']
 );
 

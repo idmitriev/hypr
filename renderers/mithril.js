@@ -102,13 +102,7 @@ module.exports = function(mithril) {
 						domEventStream.push(
 							utils.isFunction(value) ?
 								value(event) :
-								utils.mixin(
-									{},
-									event,
-									typeof value === 'string' ?
-									{ name: value } :
-										value
-								)
+								value
 						)
 					}] :
 					[key, value]
@@ -121,7 +115,7 @@ module.exports = function(mithril) {
 		);
 	}
 
-	return function render(spec, props, mountNode, callback) {
+	return function render(element, mountNode, callback) {
 		var
 			renderingScheduler = hypr.renderingScheduler(),
 			renderRoot = function() {
@@ -134,8 +128,8 @@ module.exports = function(mithril) {
 					}
 				});
 			},
-			rootComponent = createComponent(props.id, spec, props),
-			rootView = createView(spec, rootComponent);
+			rootComponent = createComponent(element.props.id, element.type, element.props),
+			rootView = createView(element.type, rootComponent);
 
 		rootComponent.render = renderRoot;
 		renderRoot();

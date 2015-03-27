@@ -28,7 +28,7 @@ var counterButon = {
 	state: function(props, domEvents) {
 		return {
 			text: props.map(r.prop('text')),
-			count: domEvents.filter(r.propEq('name', 'inc')).map(1).scan(0, sum)
+			count: domEvents.filter(r.eq('inc')).map(1).scan(0, sum)
 		}
 	},
 	props: {

@@ -108,15 +108,15 @@ module.exports = function(virtualDom) {
 		}
 	}
 
-	return function render(spec, props, mountNode, callback) {
+	return function render(element, mountNode, callback) {
 		var	requestRedraw = hypr.renderingScheduler(),
 				requestRootRedraw = function() {
 					requestRedraw(function() {
 						renderRoot(rootComponent.getState());
 					})
 				},
-				rootComponent = createComponent(null, spec, props),
-				rootView = createView(spec, rootComponent);
+				rootComponent = createComponent(null, element.type, element.props),
+				rootView = createView(element.type, rootComponent);
 
 		var tree,
 			rootNode;
@@ -175,13 +175,7 @@ function injectEventHandlers(props, domEventStream, component) {
 						domEventStream.push(
 							utils.isFunction(value) ?
 								value(event) :
-								utils.mixin(
-									{},
-									event,
-									typeof value === 'string' ?
-									{ name: value } :
-										value
-								)
+								value
 						)
 					}] :
 					[key, value]

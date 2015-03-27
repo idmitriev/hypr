@@ -18,8 +18,8 @@ function singleArgMemoize(fn) {
 	}
 }
 
-function applyOrReturn(obj, args){
-	return isFunction(obj) ? obj.apply(null, [args]) : obj;
+function applyOrReturn(fn, args){
+	return isFunction(fn) ? fn.apply(null, [args]) : fn;
 }
 
 function isFunction(obj){
@@ -39,7 +39,7 @@ function randomString(length) {
 
 function pick(keysToPick, o){
 	return reduce(function(acc, key){
-			if ( contains(key, keysToPick)){
+			if (contains(key, keysToPick)){
 				acc[key] = o[key];
 			}
 			return acc;
@@ -55,7 +55,7 @@ function contains(value, list){
 
 function mapValues(fn, o){
 	return mapObject(function(key, value){
-		return [key, fn(value)];
+			return [key, fn(value)];
 		},
 		o
 	);
@@ -156,10 +156,10 @@ function mixin() {
 }
 
 function assign(target, firstSource) {
+	"use strict";
 	if (Object.assign ){
 		return Object.assign.apply(Object, toArray(arguments));
 	}
-	"use strict";
 	if (target === undefined || target === null)
 		throw new TypeError("Cannot convert first argument to object");
 	var to = Object(target);
@@ -174,7 +174,7 @@ function assign(target, firstSource) {
 		}
 	}
 	return to;
-};
+}
 
 function isArray(o) {
 	return Array.isArray && Array.isArray(o) || Object.prototype.toString.call(o) === '[object Array]';
@@ -241,9 +241,7 @@ function forEach(fn, list) {
 	k = 0;
 
 	while (k < len) {
-
 		var kValue;
-
 		if (k in O) {
 			kValue = O[k];
 			fn.call(T, kValue, k, O);
@@ -259,6 +257,7 @@ function toArray(o){
 module.exports = {
 	mixin: mixin,
 	randomString: randomString,
+	reduce: reduce,
 	mapObject: mapObject,
 	isArray: isArray,
 	mapValues: mapValues,

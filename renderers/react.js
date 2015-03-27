@@ -91,12 +91,9 @@ module.exports = function(react) {
 
 	var getOrCreateCreactClass = utils.singleArgMemoize(createReactClass,  { length: 1 });
 
-	return function render(spec, props, mountNode, callback) {
+	return function render(element, mountNode, callback) {
 		return react.render(
-			createReactElement({
-				type: spec,
-				props: props
-			}),
+			createReactElement(element),
 			mountNode,
 			callback
 		)._hyprComponent;
@@ -117,13 +114,7 @@ function injectEventHandlers(props, domEventStream) {
 					domEventStream.push(
 						utils.isFunction(value) ?
 							value(event) :
-							utils.mixin(
-								{},
-								event,
-								typeof value === 'string' ?
-									{ name: value } :
-									value
-							)
+							value
 					)
 				}
 			] :

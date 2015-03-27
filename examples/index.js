@@ -17,7 +17,7 @@ window.onload = function(){
 		).state.log((['react', 'virtualDom', 'mithril'])[i] + '-counter-button');
 	});
 
-	hypr(virtualDom)(
+	hypr(react)(
 		videoPlayer({
 			src: 'http://www.w3schools.com/html/mov_bbb.mp4',
 			currentTime: 5

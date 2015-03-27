@@ -14,7 +14,7 @@ module.exports = function(react) {
 				react.createElement(
 					typeof spec.type === 'string' ?
 						spec.type :
-						getOrCreateCreactClass(spec.type),
+						getOrCreateReactClass(spec.type),
 					typeof spec.type === 'string' ?
 						translateAttributes(
 							utils.mixin(
@@ -89,7 +89,7 @@ module.exports = function(react) {
 		);
 	}
 
-	var getOrCreateCreactClass = utils.singleArgMemoize(createReactClass,  { length: 1 });
+	var getOrCreateReactClass = utils.singleArgMemoize(createReactClass);
 
 	return function render(element, mountNode, callback) {
 		return react.render(

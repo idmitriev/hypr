@@ -33,7 +33,7 @@ module.exports = hypr.component({
 				domEvents.filter(r.eq('playing')).map('playing'),
 				domEvents.filter(r.eq('pause')).map('pause'),
 				domEvents.filter(r.eq('ended')).map('ended')
-			),
+			).log('ps'),
 			duration: domEvents
 				.filter(r.propEq('name', 'durationchange'))
 				.map(r.prop('duration'))

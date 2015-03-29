@@ -38,13 +38,11 @@ function randomString(length) {
 
 function pick(keysToPick, o){
 	return reduce(function(acc, key){
-			if (contains(key, keysToPick)){
-				acc[key] = o[key];
-			}
+			acc[key] = o[key];
 			return acc;
 		},
 		{},
-		keys(o)
+		keysToPick
 	)
 }
 
@@ -218,37 +216,6 @@ function reduce(callback, initialValue, list) {
 	return value;
 }
 
-function forEach(fn, list) {
-	var T, k;
-
-	if (list == null) {
-		throw new TypeError(' this is null or not defined');
-	}
-
-	var
-		O = Object(list),
-		len = O.length >>> 0;
-
-	if (typeof fn !== "function") {
-		throw new TypeError(fn + ' is not a function');
-	}
-
-	if (arguments.length > 1) {
-		T = list;
-	}
-
-	k = 0;
-
-	while (k < len) {
-		var kValue;
-		if (k in O) {
-			kValue = O[k];
-			fn.call(T, kValue, k, O);
-		}
-		k++;
-	}
-}
-
 function toArray(o){
 	return Array.prototype.slice.call(o);
 }
@@ -266,6 +233,5 @@ module.exports = {
 	applyOrReturn: applyOrReturn,
 	singleArgMemoize: singleArgMemoize,
 	keys: keys,
-	forEach: forEach,
 	map: map
 };

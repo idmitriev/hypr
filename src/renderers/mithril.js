@@ -1,6 +1,6 @@
 var
 	hyprComponent = require('../component'),
-	scheduler = require('../scheduler'),
+	rafScheduler = require('../raf-scheduler'),
 	utils = require('../utils');
 
 module.exports = function(mithril) {
@@ -35,15 +35,16 @@ module.exports = function(mithril) {
 				},
 				component,
 				function (element, isInit) {
-					if (!isInit) {
-						spec.onMount && spec.onMount(element, state, component.domEventStream)
-					} else {
-						spec.onUpdate && spec.onUpdate(element, state)
+					if (!isInit && utils.isFunction(spec.onUpdate)) {
+						spec.onMount(element, state, component.domEventStream)
+					} else if (utils.isFunction(spec.onUpdate)) {
+						spec.onUpdate(element, state)
 					}
 
 					if (component.nextChildren != null) {
 						utils.map(
 							function(componentId){
+								//TODO OnUnmount
 								if ( parent.nextChildren[componentId] == null) {
 									parent.children[componentId].dispose();
 								}
@@ -118,12 +119,12 @@ module.exports = function(mithril) {
 
 	return function render(element, mountNode, callback) {
 		var
-			renderingScheduler = scheduler(),
+			requestRender = rafScheduler(),
 			renderRoot = function() {
-				renderingScheduler(function() {
+				requestRender(function() {
 					mithril.render(mountNode, rootView(rootComponent.getState()));
 
-					if ( utils.isFunction(callback) ){
+					if (utils.isFunction(callback)){
 						callback(rootComponent);
 						callback = null;
 					}

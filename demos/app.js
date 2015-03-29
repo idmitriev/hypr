@@ -61,7 +61,7 @@ module.exports = hypr.component({
 				domEvents.filter(r.eq('playing')).map('playing'),
 				domEvents.filter(r.eq('pause')).map('pause'),
 				domEvents.filter(r.eq('ended')).map('ended')
-			),
+			).log('ps'),
 			duration: domEvents
 				.filter(r.propEq('name', 'durationchange'))
 				.map(r.prop('duration'))
@@ -151,7 +151,7 @@ var videoPlayer = hypr.component({
 	},
 	children: function(state){
 		return [
-			video(r.merge({id: 'video' },r.pick(['src', 'playbackState', 'currentTime'], state))),
+			video(r.merge({id: 'video' }, r.pick(['src', 'playbackState', 'currentTime'], state))),
 			hypr.html.button({
 					style: {
 						position: 'absolute',
@@ -211,7 +211,7 @@ var videoPlayer = hypr.component({
 				props.map(r.prop('currentTime')),
 				children.map(r.prop('video')).filter(notNull).flatMap(r.prop('state')).map(r.prop('currentTime')),
 				hypr.stream.update(
-					0,
+					null,
 					[
 						domEvents
 							.filter(r.propEq('name', 'seek'))
@@ -220,7 +220,7 @@ var videoPlayer = hypr.component({
 							.map(function(progress) {
 								return progress > 1 ?
 									1 :
-									progress < 0 || isNaN(parseFloat(progress)) || !isFinite(progress) ?
+									progress < 0 || isNaN(progress) || !isFinite(progress) ?
 										0 :
 										progress;
 							}),
@@ -229,8 +229,8 @@ var videoPlayer = hypr.component({
 					function(currentTime, progress, duration){
 						return progress * duration;
 					}
-				)
-			),
+				).filter(notNull)
+			).toProperty(0),
 			duration: duration
 		}
 	}
@@ -258,8 +258,9 @@ window.onload = function(){
 		).state.log((['react', 'virtualDom', 'mithril'])[i] + '-counter-button');
 	});
 
-	hypr(react)(
+	hypr(mithril)(
 		videoPlayer({
+			playbackState: 'playing',
 			src: 'http://www.w3schools.com/html/mov_bbb.mp4',
 			currentTime: 5
 		}),
@@ -33506,14 +33507,14 @@ module.exports = function component(spec, initialProps, id){
 		state: state,
 		events: events,
 		dispose: function() {
-			[
+			utils.map(function(stream){
+				stream.end();
+			},[
 				domEventStream,
 				childrenStream,
 				propStream,
 				stateStream
-			].map(function(stream){
-					stream.end()
-				});
+			]);
 			return this;
 		}
 	}
@@ -33597,7 +33598,7 @@ module.exports = function hypr(rendererLib){
 				}
 		)(rendererLib);
 }
-},{"./renderers/mithril":209,"./renderers/react":210,"./renderers/virtual-dom":211,"./utils":213}],208:[function(require,module,exports){
+},{"./renderers/mithril":210,"./renderers/react":211,"./renderers/virtual-dom":212,"./utils":213}],208:[function(require,module,exports){
 module.exports = require('./hypr');
 module.exports.stream = require('baconjs');
 module.exports.html = require('./html');
@@ -33608,9 +33609,32 @@ module.exports.component = function component(spec){
 	}
 }
 },{"./element":205,"./html":206,"./hypr":207,"baconjs":198}],209:[function(require,module,exports){
+var raf = require('raf');
+
+module.exports = function rafScheduler() {
+	var scheduled = false,
+		running = false,
+		task = null;
+
+	return function schedule(t){
+		task = t;
+		if(!scheduled) {
+			scheduled = true;
+			raf(function() {
+				scheduled = false;
+				if ( !running ) {
+					running = true;
+					task();
+					running = false;
+				}
+			});
+		}
+	}
+};
+},{"raf":202}],210:[function(require,module,exports){
 var
 	hyprComponent = require('../component'),
-	scheduler = require('../scheduler'),
+	rafScheduler = require('../raf-scheduler'),
 	utils = require('../utils');
 
 module.exports = function(mithril) {
@@ -33645,15 +33669,16 @@ module.exports = function(mithril) {
 				},
 				component,
 				function (element, isInit) {
-					if (!isInit) {
-						spec.onMount && spec.onMount(element, state, component.domEventStream)
-					} else {
-						spec.onUpdate && spec.onUpdate(element, state)
+					if (!isInit && utils.isFunction(spec.onUpdate)) {
+						spec.onMount(element, state, component.domEventStream)
+					} else if (utils.isFunction(spec.onUpdate)) {
+						spec.onUpdate(element, state)
 					}
 
 					if (component.nextChildren != null) {
 						utils.map(
 							function(componentId){
+								//TODO OnUnmount
 								if ( parent.nextChildren[componentId] == null) {
 									parent.children[componentId].dispose();
 								}
@@ -33728,12 +33753,12 @@ module.exports = function(mithril) {
 
 	return function render(element, mountNode, callback) {
 		var
-			renderingScheduler = scheduler(),
+			requestRender = rafScheduler(),
 			renderRoot = function() {
-				renderingScheduler(function() {
+				requestRender(function() {
 					mithril.render(mountNode, rootView(rootComponent.getState()));
 
-					if ( utils.isFunction(callback) ){
+					if (utils.isFunction(callback)){
 						callback(rootComponent);
 						callback = null;
 					}
@@ -33749,9 +33774,8 @@ module.exports = function(mithril) {
 	};
 };
 
-},{"../component":204,"../scheduler":212,"../utils":213}],210:[function(require,module,exports){
-var
-	stream = require('baconjs'),
+},{"../component":204,"../raf-scheduler":209,"../utils":213}],211:[function(require,module,exports){
+var stream = require('baconjs'),
 	utils = require('../utils'),
 	hyprComponent = require('../component');
 
@@ -33902,10 +33926,9 @@ function getChildren(refs){
 }
 
 
-},{"../component":204,"../utils":213,"baconjs":198}],211:[function(require,module,exports){
-var
-	hyprComponent = require('../component'),
-	scheduler = require('../scheduler'),
+},{"../component":204,"../utils":213,"baconjs":198}],212:[function(require,module,exports){
+var hyprComponent = require('../component'),
+	rafScheduler = require('../raf-scheduler'),
 	utils = require('../utils');
 
 module.exports = function(virtualDom) {
@@ -33915,7 +33938,9 @@ module.exports = function(virtualDom) {
 			typeof element === 'number' ?
 				element.toString() :
 				utils.isArray(element) ?
-					element.map(function(element) { return renderElement(element, component) }) :
+					element.map(function(element) {
+						return renderElement(element, component)
+					}) :
 					typeof element.type === 'string' ?
 						virtualDom.h(
 							element.type,
@@ -33939,11 +33964,11 @@ module.exports = function(virtualDom) {
 	function renderComponent(id, spec, props, parent) {
 		var component = parent != null && id != null && parent.children != null && parent.children[id] != null ?
 				parent.children[id] :
-				createComponent(id, spec, props, parent.redraw),
+				createComponent(id, spec, props),
 			 view = createView(spec, component);
 
 		component.pushProps(props);
-		component.redraw = parent.redraw;
+		component.render = parent.render;
 
 		if ( parent != null && id != null) {
 			parent.nextChildren = parent.nextChildren || {};
@@ -33960,20 +33985,20 @@ module.exports = function(virtualDom) {
 	}
 
 	function createComponent(id, spec, initialProps) {
-		var
-			component = hyprComponent(spec, initialProps, id),
+		var component = hyprComponent(spec, initialProps, id),
 			firstRender = true,
 			state;
 
 		component.onMount = function() {
-			if ( spec.onMount != null ) {
+			if (utils.isFunction(spec.onMount)) {
 				spec.onMount(component.element, component.getState(), component.domEventStream);
 			}
 		};
 		component.onUpdate = function() {
-			if ( component.nextChildren != null ) {
+			if (component.nextChildren != null) {
 				utils.map(
 					function(componentId){
+						//TODO OnUnmount
 						if ( component.nextChildren[componentId] == null) {
 							component.children[componentId].dispose();
 						}
@@ -33985,15 +34010,15 @@ module.exports = function(virtualDom) {
 				component.pushChildren(component.nextChildren);
 				component.nextChildren = null;
 			}
-			if ( component.element != null && spec.onUpdate != null ) {
+			if (component.element != null && utils.isFunction(spec.onUpdate)) {
 				spec.onUpdate(component.element, component.getState(), component.domEventStream);
 			}
 		};
 		component.getState = function() { return state };
 		component.state.onValue(function(s) {
 			state = s;
-			if ( !firstRender && component.redraw != null ) {
-				component.redraw();
+			if ( !firstRender && utils.isFunction(component.render) ) {
+				component.render();
 			}
 		});
 		firstRender = false;
@@ -34015,9 +34040,9 @@ module.exports = function(virtualDom) {
 	}
 
 	return function render(element, mountNode, callback) {
-		var	requestRedraw = scheduler(),
-			requestRootRedraw = function() {
-				requestRedraw(function() {
+		var	requestRender = rafScheduler(),
+			requestRootRender = function() {
+				requestRender(function() {
 					renderRoot(rootComponent.getState());
 				})
 			},
@@ -34043,8 +34068,8 @@ module.exports = function(virtualDom) {
 			tree = newTree;
 		}
 
-		rootComponent.redraw = requestRootRedraw;
-		requestRootRedraw();
+		rootComponent.render = requestRootRender;
+		requestRootRender();
 
 		return rootComponent;
 	};
@@ -34075,14 +34100,17 @@ function injectEventHandlers(props, domEventStream, component) {
 		utils.mapObject(
 			function(key, value) {
 				return key.indexOf('on') == 0 ?
-					[key.toLowerCase(), function eventHandler(event) {
-						event.stopPropagation();
-						domEventStream.push(
-							utils.isFunction(value) ?
-								value(event) :
-								value
-						)
-					}] :
+					[
+						key.toLowerCase(),
+						function eventHandler(event) {
+							event.stopPropagation();
+							domEventStream.push(
+								utils.isFunction(value) ?
+									value(event) :
+									value
+							)
+						}
+					] :
 					[key, value]
 			},
 			props
@@ -34096,32 +34124,7 @@ function injectEventHandlers(props, domEventStream, component) {
 			{}
 	);
 }
-},{"../component":204,"../scheduler":212,"../utils":213}],212:[function(require,module,exports){
-var raf = require('raf');
-
-module.exports = function() {
-	var renderScheduled = false,
-		rendering = false,
-		renderFn = null;
-
-	function render(fn){
-		renderFn = fn;
-		if(!renderScheduled) {
-			renderScheduled = true;
-			raf(function() {
-				renderScheduled = false;
-				if ( !rendering ) {
-					rendering = true;
-					renderFn();
-					rendering = false;
-				}
-			});
-		}
-	}
-
-	return render;
-};
-},{"raf":202}],213:[function(require,module,exports){
+},{"../component":204,"../raf-scheduler":209,"../utils":213}],213:[function(require,module,exports){
 function singleArgMemoize(fn) {
 	var knownArguments = [],
 		results = [];
@@ -34162,13 +34165,11 @@ function randomString(length) {
 
 function pick(keysToPick, o){
 	return reduce(function(acc, key){
-			if (contains(key, keysToPick)){
-				acc[key] = o[key];
-			}
+			acc[key] = o[key];
 			return acc;
 		},
 		{},
-		keys(o)
+		keysToPick
 	)
 }
 
@@ -34342,37 +34343,6 @@ function reduce(callback, initialValue, list) {
 	return value;
 }
 
-function forEach(fn, list) {
-	var T, k;
-
-	if (list == null) {
-		throw new TypeError(' this is null or not defined');
-	}
-
-	var
-		O = Object(list),
-		len = O.length >>> 0;
-
-	if (typeof fn !== "function") {
-		throw new TypeError(fn + ' is not a function');
-	}
-
-	if (arguments.length > 1) {
-		T = list;
-	}
-
-	k = 0;
-
-	while (k < len) {
-		var kValue;
-		if (k in O) {
-			kValue = O[k];
-			fn.call(T, kValue, k, O);
-		}
-		k++;
-	}
-}
-
 function toArray(o){
 	return Array.prototype.slice.call(o);
 }
@@ -34390,7 +34360,6 @@ module.exports = {
 	applyOrReturn: applyOrReturn,
 	singleArgMemoize: singleArgMemoize,
 	keys: keys,
-	forEach: forEach,
 	map: map
 };
 },{}]},{},[4]);

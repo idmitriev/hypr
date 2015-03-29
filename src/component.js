@@ -48,14 +48,14 @@ module.exports = function component(spec, initialProps, id){
 		state: state,
 		events: events,
 		dispose: function() {
-			[
+			utils.map(function(stream){
+				stream.end();
+			},[
 				domEventStream,
 				childrenStream,
 				propStream,
 				stateStream
-			].map(function(stream){
-					stream.end()
-				});
+			]);
 			return this;
 		}
 	}

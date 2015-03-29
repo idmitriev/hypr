@@ -1,6 +1,5 @@
-var
-	hyprComponent = require('../component'),
-	scheduler = require('../scheduler'),
+var hyprComponent = require('../component'),
+	rafScheduler = require('../raf-scheduler'),
 	utils = require('../utils');
 
 module.exports = function(virtualDom) {
@@ -10,7 +9,9 @@ module.exports = function(virtualDom) {
 			typeof element === 'number' ?
 				element.toString() :
 				utils.isArray(element) ?
-					element.map(function(element) { return renderElement(element, component) }) :
+					element.map(function(element) {
+						return renderElement(element, component)
+					}) :
 					typeof element.type === 'string' ?
 						virtualDom.h(
 							element.type,
@@ -34,11 +35,11 @@ module.exports = function(virtualDom) {
 	function renderComponent(id, spec, props, parent) {
 		var component = parent != null && id != null && parent.children != null && parent.children[id] != null ?
 				parent.children[id] :
-				createComponent(id, spec, props, parent.redraw),
+				createComponent(id, spec, props),
 			 view = createView(spec, component);
 
 		component.pushProps(props);
-		component.redraw = parent.redraw;
+		component.render = parent.render;
 
 		if ( parent != null && id != null) {
 			parent.nextChildren = parent.nextChildren || {};
@@ -55,20 +56,20 @@ module.exports = function(virtualDom) {
 	}
 
 	function createComponent(id, spec, initialProps) {
-		var
-			component = hyprComponent(spec, initialProps, id),
+		var component = hyprComponent(spec, initialProps, id),
 			firstRender = true,
 			state;
 
 		component.onMount = function() {
-			if ( spec.onMount != null ) {
+			if (utils.isFunction(spec.onMount)) {
 				spec.onMount(component.element, component.getState(), component.domEventStream);
 			}
 		};
 		component.onUpdate = function() {
-			if ( component.nextChildren != null ) {
+			if (component.nextChildren != null) {
 				utils.map(
 					function(componentId){
+						//TODO OnUnmount
 						if ( component.nextChildren[componentId] == null) {
 							component.children[componentId].dispose();
 						}
@@ -80,15 +81,15 @@ module.exports = function(virtualDom) {
 				component.pushChildren(component.nextChildren);
 				component.nextChildren = null;
 			}
-			if ( component.element != null && spec.onUpdate != null ) {
+			if (component.element != null && utils.isFunction(spec.onUpdate)) {
 				spec.onUpdate(component.element, component.getState(), component.domEventStream);
 			}
 		};
 		component.getState = function() { return state };
 		component.state.onValue(function(s) {
 			state = s;
-			if ( !firstRender && component.redraw != null ) {
-				component.redraw();
+			if ( !firstRender && utils.isFunction(component.render) ) {
+				component.render();
 			}
 		});
 		firstRender = false;
@@ -110,9 +111,9 @@ module.exports = function(virtualDom) {
 	}
 
 	return function render(element, mountNode, callback) {
-		var	requestRedraw = scheduler(),
-			requestRootRedraw = function() {
-				requestRedraw(function() {
+		var	requestRender = rafScheduler(),
+			requestRootRender = function() {
+				requestRender(function() {
 					renderRoot(rootComponent.getState());
 				})
 			},
@@ -138,8 +139,8 @@ module.exports = function(virtualDom) {
 			tree = newTree;
 		}
 
-		rootComponent.redraw = requestRootRedraw;
-		requestRootRedraw();
+		rootComponent.render = requestRootRender;
+		requestRootRender();
 
 		return rootComponent;
 	};
@@ -170,14 +171,17 @@ function injectEventHandlers(props, domEventStream, component) {
 		utils.mapObject(
 			function(key, value) {
 				return key.indexOf('on') == 0 ?
-					[key.toLowerCase(), function eventHandler(event) {
-						event.stopPropagation();
-						domEventStream.push(
-							utils.isFunction(value) ?
-								value(event) :
-								value
-						)
-					}] :
+					[
+						key.toLowerCase(),
+						function eventHandler(event) {
+							event.stopPropagation();
+							domEventStream.push(
+								utils.isFunction(value) ?
+									value(event) :
+									value
+							)
+						}
+					] :
 					[key, value]
 			},
 			props

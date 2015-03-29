@@ -1,5 +1,4 @@
-var
-	stream = require('baconjs'),
+var stream = require('baconjs'),
 	utils = require('../utils'),
 	hyprComponent = require('../component');
 

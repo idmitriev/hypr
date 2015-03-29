@@ -19,7 +19,12 @@ var videoPlayer = hypr.component({
 	},
 	children: function(state){
 		return [
-			video(r.merge({id: 'video' },r.pick(['src', 'playbackState', 'currentTime'], state))),
+			video(
+				r.merge(
+					{ id: 'video' },
+					r.pick(['src', 'playbackState', 'currentTime'], state)
+				)
+			),
 			hypr.html.button({
 					style: {
 						position: 'absolute',
@@ -50,7 +55,7 @@ var videoPlayer = hypr.component({
 				style: {
 					height: 15,
 					width: state.duration != 0 ?
-					'' + (100 * state.currentTime / state.duration) + '%' :
+						'' + (100 * state.currentTime / state.duration) + '%' :
 						0,
 					background: '#f00'
 				}
@@ -79,7 +84,7 @@ var videoPlayer = hypr.component({
 				props.map(r.prop('currentTime')),
 				children.map(r.prop('video')).filter(notNull).flatMap(r.prop('state')).map(r.prop('currentTime')),
 				hypr.stream.update(
-					0,
+					null,
 					[
 						domEvents
 							.filter(r.propEq('name', 'seek'))
@@ -88,7 +93,7 @@ var videoPlayer = hypr.component({
 							.map(function(progress) {
 								return progress > 1 ?
 									1 :
-									progress < 0 || isNaN(parseFloat(progress)) || !isFinite(progress) ?
+									progress < 0 || isNaN(progress) || !isFinite(progress) ?
 										0 :
 										progress;
 							}),
@@ -97,8 +102,8 @@ var videoPlayer = hypr.component({
 					function(currentTime, progress, duration){
 						return progress * duration;
 					}
-				)
-			),
+				).filter(notNull)
+			).toProperty(0),
 			duration: duration
 		}
 	}

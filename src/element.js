@@ -20,6 +20,7 @@ function parseTag(tag){
 }
 
 module.exports = function element(tag, props, children){
+	props = props == null ? {} : props;
 	var
 		parsed = typeof tag === 'string' ?
 			parseTag(tag) :

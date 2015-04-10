@@ -13,7 +13,7 @@ module.exports = function(virtualDom) {
 						return renderElement(element, component)
 					}) :
 					utils.isFunction(element.type) ?
-						renderElement(element.type(element.props), component) :
+						renderElement(element.type(element.props || {}), component) :
 						typeof element.type === 'string' ?
 							virtualDom.h(
 								element.type,

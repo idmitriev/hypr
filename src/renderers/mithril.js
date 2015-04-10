@@ -12,7 +12,7 @@ module.exports = function(mithril) {
 					return renderElement(element, component)
 				}) :
 				utils.isFunction(element.type) ?
-					renderElement(element.type(element.props), component) :
+					renderElement(element.type(element.props || {}), component) :
 					typeof element.type === 'string' ?
 						mithril(
 							element.type,

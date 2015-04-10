@@ -11,7 +11,7 @@ module.exports = function(react) {
 					return createReactElement(spec, parentReactComponent)
 				}) :
 				utils.isFunction(spec.type) ?
-					createReactElement(spec.type(spec.props), parentReactComponent) :
+					createReactElement(spec.type(spec.props || {}), parentReactComponent) :
 					react.createElement(
 						typeof spec.type === 'string' ?
 							spec.type :

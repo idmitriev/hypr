@@ -11,18 +11,20 @@ module.exports = function(mithril) {
 				element.map(function(element) {
 					return renderElement(element, component)
 				}) :
-				typeof element.type === 'string' ?
-					mithril(
-						element.type,
-						utils.mixin(
-							injectEventHandlers(element.props, component.domEventStream, onMount),
-							element.id ?
-								{ key: element.id } :
-								{}
-						),
-						renderElement(element.children, component)
-					) :
-					renderComponent(element.id, element.type, element.props, component)
+				utils.isFunction(element.type) ?
+					renderElement(element.type(element.props), component) :
+					typeof element.type === 'string' ?
+						mithril(
+							element.type,
+							utils.mixin(
+								injectEventHandlers(element.props, component.domEventStream, onMount),
+								element.id ?
+									{ key: element.id } :
+									{}
+							),
+							renderElement(element.children, component)
+						) :
+						renderComponent(element.id, element.type, element.props, component)
 	}
 
 	function createView(spec, component){

@@ -12,24 +12,26 @@ module.exports = function(virtualDom) {
 					element.map(function(element) {
 						return renderElement(element, component)
 					}) :
-					typeof element.type === 'string' ?
-						virtualDom.h(
-							element.type,
-							utils.mixin(
-								injectEventHandlers(
-									element.props,
-									component.domEventStream,
-									isComponentRootElement ?
-										component :
-										null
+					utils.isFunction(element.type) ?
+						renderElement(element.type(element.props), component) :
+						typeof element.type === 'string' ?
+							virtualDom.h(
+								element.type,
+								utils.mixin(
+									injectEventHandlers(
+										element.props,
+										component.domEventStream,
+										isComponentRootElement ?
+											component :
+											null
+									),
+									element.id ?
+										{ key: element.id } :
+										{}
 								),
-								element.id ?
-									{ key: element.id } :
-									{}
-							),
-							renderElement(element.children, component)
-						) :
-						renderComponent(element.id, element.type, element.props, component)
+								renderElement(element.children, component)
+							) :
+							renderComponent(element.id, element.type, element.props, component)
 	}
 
 	function renderComponent(id, spec, props, parent) {

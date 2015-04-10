@@ -10,27 +10,29 @@ module.exports = function(react) {
 				spec.map(function(spec){
 					return createReactElement(spec, parentReactComponent)
 				}) :
-				react.createElement(
-					typeof spec.type === 'string' ?
-						spec.type :
-						getOrCreateReactClass(spec.type),
-					typeof spec.type === 'string' ?
-						translateAttributes(
-							utils.mixin(
-								{ ref: spec.id, key: spec.id },
-								parentReactComponent._hyprComponent.domEventStream != null ?
-									injectEventHandlers(spec.props == null ?
-										{} :
-										utils.applyOrReturn(spec.props, parentReactComponent.state),
-									parentReactComponent._hyprComponent.domEventStream) :
-									spec.props == null ?
-										{} :
-										utils.applyOrReturn(spec.props, parentReactComponent.state)
-							)
-						) :
-						utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
-					createReactElement(spec.children, parentReactComponent)
-				);
+				utils.isFunction(spec.type) ?
+					createReactElement(spec.type(spec.props), parentReactComponent) :
+					react.createElement(
+						typeof spec.type === 'string' ?
+							spec.type :
+							getOrCreateReactClass(spec.type),
+						typeof spec.type === 'string' ?
+							translateAttributes(
+								utils.mixin(
+									{ ref: spec.id, key: spec.id },
+									parentReactComponent._hyprComponent.domEventStream != null ?
+										injectEventHandlers(spec.props == null ?
+											{} :
+											utils.applyOrReturn(spec.props, parentReactComponent.state),
+										parentReactComponent._hyprComponent.domEventStream) :
+										spec.props == null ?
+											{} :
+											utils.applyOrReturn(spec.props, parentReactComponent.state)
+								)
+							) :
+							utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
+						createReactElement(spec.children, parentReactComponent)
+					);
 	}
 
 	function createReactClass(spec){

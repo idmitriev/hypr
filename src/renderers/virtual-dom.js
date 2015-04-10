@@ -19,7 +19,7 @@ module.exports = function(virtualDom) {
 								element.type,
 								utils.mixin(
 									injectEventHandlers(
-										element.props,
+										element.props || {},
 										component.domEventStream,
 										isComponentRootElement ?
 											component :

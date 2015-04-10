@@ -17,7 +17,7 @@ module.exports = function(mithril) {
 						mithril(
 							element.type,
 							utils.mixin(
-								injectEventHandlers(element.props, component.domEventStream, onMount),
+								injectEventHandlers(element.props || {}, component.domEventStream, onMount),
 								element.id ?
 									{ key: element.id } :
 									{}

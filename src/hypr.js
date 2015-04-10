@@ -6,7 +6,7 @@ var
 
 module.exports = function hypr(rendererLib){
 	return function render(element, mountNode, callback) {
-		(rendererLib.createClass != null && rendererLib.createElement != null && rendererLib.render != null ?
+		return (rendererLib.createClass != null && rendererLib.createElement != null && rendererLib.render != null ?
 			reactRenderer :
 			utils.isFunction(rendererLib) && rendererLib.module != null ?
 				mithrilRenderer :

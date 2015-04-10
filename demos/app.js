@@ -151,7 +151,12 @@ var videoPlayer = hypr.component({
 	},
 	children: function(state){
 		return [
-			video(r.merge({id: 'video' }, r.pick(['src', 'playbackState', 'currentTime'], state))),
+			video(
+				r.merge(
+					{ id: 'video' },
+					r.pick(['src', 'playbackState', 'currentTime'], state)
+				)
+			),
 			hypr.html.button({
 					style: {
 						position: 'absolute',
@@ -182,7 +187,7 @@ var videoPlayer = hypr.component({
 				style: {
 					height: 15,
 					width: state.duration != 0 ?
-					'' + (100 * state.currentTime / state.duration) + '%' :
+						'' + (100 * state.currentTime / state.duration) + '%' :
 						0,
 					background: '#f00'
 				}
@@ -33542,6 +33547,7 @@ function parseTag(tag){
 }
 
 module.exports = function element(tag, props, children){
+	props = props == null ? {} : props;
 	var
 		parsed = typeof tag === 'string' ?
 			parseTag(tag) :
@@ -33587,16 +33593,18 @@ var
 	virtualDomRenderer = require('./renderers/virtual-dom');
 
 module.exports = function hypr(rendererLib){
-	return (rendererLib.createClass != null && rendererLib.createElement != null && rendererLib.render != null ?
-		reactRenderer :
-		utils.isFunction(rendererLib) && rendererLib.module != null ?
-			mithrilRenderer :
-			rendererLib.h != null && rendererLib.diff != null && rendererLib.patch != null && rendererLib.create != null ?
-				virtualDomRenderer :
-				function() {
-					throw new Error('Rendering library not supported');
-				}
-		)(rendererLib);
+	return function render(element, mountNode, callback) {
+		(rendererLib.createClass != null && rendererLib.createElement != null && rendererLib.render != null ?
+			reactRenderer :
+			utils.isFunction(rendererLib) && rendererLib.module != null ?
+				mithrilRenderer :
+				rendererLib.h != null && rendererLib.diff != null && rendererLib.patch != null && rendererLib.create != null ?
+					virtualDomRenderer :
+					function() {
+						throw new Error('Rendering library not supported');
+					}
+		)(rendererLib)(utils.applyOrReturn(element, {}), mountNode, callback);
+	}
 }
 },{"./renderers/mithril":210,"./renderers/react":211,"./renderers/virtual-dom":212,"./utils":213}],208:[function(require,module,exports){
 module.exports = require('./hypr');
@@ -33645,18 +33653,20 @@ module.exports = function(mithril) {
 				element.map(function(element) {
 					return renderElement(element, component)
 				}) :
-				typeof element.type === 'string' ?
-					mithril(
-						element.type,
-						utils.mixin(
-							injectEventHandlers(element.props, component.domEventStream, onMount),
-							element.id ?
-								{ key: element.id } :
-								{}
-						),
-						renderElement(element.children, component)
-					) :
-					renderComponent(element.id, element.type, element.props, component)
+				utils.isFunction(element.type) ?
+					renderElement(element.type(element.props), component) :
+					typeof element.type === 'string' ?
+						mithril(
+							element.type,
+							utils.mixin(
+								injectEventHandlers(element.props, component.domEventStream, onMount),
+								element.id ?
+									{ key: element.id } :
+									{}
+							),
+							renderElement(element.children, component)
+						) :
+						renderComponent(element.id, element.type, element.props, component)
 	}
 
 	function createView(spec, component){
@@ -33787,27 +33797,29 @@ module.exports = function(react) {
 				spec.map(function(spec){
 					return createReactElement(spec, parentReactComponent)
 				}) :
-				react.createElement(
-					typeof spec.type === 'string' ?
-						spec.type :
-						getOrCreateReactClass(spec.type),
-					typeof spec.type === 'string' ?
-						translateAttributes(
-							utils.mixin(
-								{ ref: spec.id, key: spec.id },
-								parentReactComponent._hyprComponent.domEventStream != null ?
-									injectEventHandlers(spec.props == null ?
-										{} :
-										utils.applyOrReturn(spec.props, parentReactComponent.state),
-									parentReactComponent._hyprComponent.domEventStream) :
-									spec.props == null ?
-										{} :
-										utils.applyOrReturn(spec.props, parentReactComponent.state)
-							)
-						) :
-						utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
-					createReactElement(spec.children, parentReactComponent)
-				);
+				utils.isFunction(spec.type) ?
+					createReactElement(spec.type(spec.props), parentReactComponent) :
+					react.createElement(
+						typeof spec.type === 'string' ?
+							spec.type :
+							getOrCreateReactClass(spec.type),
+						typeof spec.type === 'string' ?
+							translateAttributes(
+								utils.mixin(
+									{ ref: spec.id, key: spec.id },
+									parentReactComponent._hyprComponent.domEventStream != null ?
+										injectEventHandlers(spec.props == null ?
+											{} :
+											utils.applyOrReturn(spec.props, parentReactComponent.state),
+										parentReactComponent._hyprComponent.domEventStream) :
+										spec.props == null ?
+											{} :
+											utils.applyOrReturn(spec.props, parentReactComponent.state)
+								)
+							) :
+							utils.mixin(spec.props || {}, { ref: spec.id, key: spec.id }),
+						createReactElement(spec.children, parentReactComponent)
+					);
 	}
 
 	function createReactClass(spec){
@@ -33941,24 +33953,26 @@ module.exports = function(virtualDom) {
 					element.map(function(element) {
 						return renderElement(element, component)
 					}) :
-					typeof element.type === 'string' ?
-						virtualDom.h(
-							element.type,
-							utils.mixin(
-								injectEventHandlers(
-									element.props,
-									component.domEventStream,
-									isComponentRootElement ?
-										component :
-										null
+					utils.isFunction(element.type) ?
+						renderElement(element.type(element.props), component) :
+						typeof element.type === 'string' ?
+							virtualDom.h(
+								element.type,
+								utils.mixin(
+									injectEventHandlers(
+										element.props,
+										component.domEventStream,
+										isComponentRootElement ?
+											component :
+											null
+									),
+									element.id ?
+										{ key: element.id } :
+										{}
 								),
-								element.id ?
-									{ key: element.id } :
-									{}
-							),
-							renderElement(element.children, component)
-						) :
-						renderComponent(element.id, element.type, element.props, component)
+								renderElement(element.children, component)
+							) :
+							renderComponent(element.id, element.type, element.props, component)
 	}
 
 	function renderComponent(id, spec, props, parent) {

@@ -80,8 +80,8 @@ module.exports = function(virtualDom) {
 				);
 
 				component.children = component.nextChildren;
-				component.pushChildren(component.nextChildren);
-				component.nextChildren = null;
+				component.nextChildren = {};
+				component.pushChildren(component.children);
 			}
 			if (component.element != null && utils.isFunction(spec.onUpdate)) {
 				spec.onUpdate(component.element, component.getState(), component.domEventStream);

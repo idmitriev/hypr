@@ -55,7 +55,7 @@ module.exports = function(mithril) {
 						);
 
 						component.children = component.nextChildren;
-						component.nextChildren = null;
+						component.nextChildren = {};
 						component.pushChildren(component.children);
 					}
 				}

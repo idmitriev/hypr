@@ -24,7 +24,12 @@ module.exports = function(mithril) {
 							),
 							renderElement(element.children, component)
 						) :
-						renderComponent(element.id, element.type, element.props, component)
+						renderComponent(
+							element.id,
+							element.type,
+							utils.mixin({ children: element.children }, element.props),
+							component
+						)
 	}
 
 	function createView(spec, component){

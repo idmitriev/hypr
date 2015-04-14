@@ -13,7 +13,7 @@ module.exports = function(virtualDom) {
 						return renderElement(element, component)
 					}) :
 					utils.isFunction(element.type) ?
-						renderElement(element.type(element.props || {}), component) :
+						renderElement(element.type(element.props || {}, element.children), component) :
 						typeof element.type === 'string' ?
 							virtualDom.h(
 								element.type,
@@ -31,7 +31,12 @@ module.exports = function(virtualDom) {
 								),
 								renderElement(element.children, component)
 							) :
-							renderComponent(element.id, element.type, element.props, component)
+							renderComponent(
+								element.id,
+								element.type,
+								utils.mixin({ children: element.children }, element.props),
+								component
+							)
 	}
 
 	function renderComponent(id, spec, props, parent) {
